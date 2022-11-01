@@ -1,59 +1,69 @@
 const inquirer = require('inquirer');
-const EmployeeDatabase = require('../lib/EmployeeDatabase');
+const employees_db = require('../lib/EmployeeDatabase')
+const cTable = require('console.table')
 
-const employees_db = new EmployeeDatabase();
-
-async function viewDepartments() {
-    var res = await employees_db.getDepartments();
-    console.table(res);
+async function getEmployeeSubMenu() {
+    const { action } = await inquirer.prompt([
+        {
+            name: "action",
+            message: "Select action:",
+            type: "list",
+            choices: [{name:"View Employees", value: viewEmployees}, {name:"Add an Employee", value: addEmployee}, {name:"Update an Employee", value: updateEmployee}]
+        }
+    ]);
+    var res = await action();
 }
-exports.viewDepartments = viewDepartments;
-
-async function viewRoles() {
-    var res = await employees_db.getRoles();
-    console.table(res);
-}
-exports.viewRoles = viewRoles;
+exports.getEmployeeSubMenu = getEmployeeSubMenu
 
 async function viewEmployees() {
-    var res = await employees_db.getEmployees();
+    const { by } = await inquirer.prompt([
+        {
+            name: "by",
+            message: "Filter Employees by?",
+            type: "list",
+            choices: [{name:"All", value: viewAllEmployees}, {name:"Manager", value: viewEmployeesByManager}, {name:"Department", value: viewEmployeesByDepartment}]
+        }
+    ]);
+    var res = await by();
     console.table(res);
 }
 exports.viewEmployees = viewEmployees;
-async function addDepartment() {
-    const { department } = await inquirer.prompt([
-        {
-            name: "department",
-            message: "What is the department name?",
-            type: "input",
-        }
-    ]);
-    var res = await employees_db.addDepartment(department);
-}
-exports.addDepartment = addDepartment;
 
-async function addRole() {
-    const deptObjsArray = await employees_db.getDepartments();
-    const deptNamesArray = deptObjsArray.map(deptObj => ({"name" :deptObj.department_name, "value": deptObj.id}));
-    const { title, salary, department } = await inquirer.prompt([
-        {
-            name: "title",
-            message: "What is the title of the new role?"
-        },
-        {
-            name: "salary",
-            message: "What is the salary for the new role?"
-        },
-        {
-            name: "department",
-            message: "What department is this role in?",
-            type: "list",
-            choices: deptNamesArray
-        }
-    ]);
-    const output = await employees_db.addRole(title, salary, department);
+async function viewAllEmployees() {
+    const res = await employees_db.getEmployees()
+    console.table(res)
 }
-exports.addRole = addRole;
+
+async function viewEmployeesByManager() {
+    const managersObjArray = await employees_db.getUniqueManagers();
+    const managersNamesArray = managersObjArray.map(managerObj => ({
+        "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
+    }));
+    const { manager }  = await inquirer.prompt([{
+        name : 'manager',
+        message: "Which manager which you like to view employees for?",
+        type: "list",
+        choices: managersNamesArray
+    }])
+    const output = await employees_db.getEmployeesByManager(manager)
+    console.table(output)
+}
+
+async function viewEmployeesByDepartment() {
+    const deptObjArray = await employees_db.getDepartments();
+    const deptNamesArray = deptObjArray.map(deptObj => ({
+        "name": `${deptObj.department_name}`, "value": deptObj.id
+    }));
+    const { department }  = await inquirer.prompt([{
+        name : 'department',
+        message: "Which department which you like to view employees for?",
+        type: "list",
+        choices: deptNamesArray
+    }])
+    const output = await employees_db.getEmployeesByDepartment(department)
+    console.table(output)
+}
+
 
 async function addEmployee() {
     const rolesObjArray = await employees_db.getRoles();
@@ -88,6 +98,21 @@ async function addEmployee() {
 }
 exports.addEmployee = addEmployee;
 
+async function updateEmployee() {
+    const { action } = await inquirer.prompt([
+        {
+            name: "action",
+            message: "Update employees:",
+            type: "list",
+            choices: [{name:"Role", value: updateRole}, {name:"Manager", value: updateManager}]
+        }
+    ])
+    const rows = await action();
+}
+exports.updateEmployee = updateEmployee;
+
+
+
 async function updateRole() {
     const employeeObjsArray = await employees_db.getEmployees();
     const employeeNamesArray = employeeObjsArray.map(employeeObj => ({
@@ -111,7 +136,6 @@ async function updateRole() {
     ]);
     const output = await employees_db.updateEmployeeRole(employee, role);
 }
-exports.updateRole = updateRole;
 
 async function updateManager() {
     const employeeObjsArray = await employees_db.getEmployees();
@@ -134,36 +158,5 @@ async function updateManager() {
     ]);
     const output = await employees_db.updateEmployeeManager(employee, manager);
 }
-exports.updateManager = updateManager;
 
-async function viewEmployeesByManager() {
-    const managersObjArray = await employees_db.getUniqueManagers();
-    const managersNamesArray = managersObjArray.map(managerObj => ({
-        "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
-    }));
-    const { manager }  = await inquirer.prompt([{
-        name : 'manager',
-        message: "Which manager which you like to view employees for?",
-        type: "list",
-        choices: managersNamesArray
-    }])
-    const output = await employees_db.getEmployeesByManager(manager)
-    console.table(output)
-}
-exports.viewEmployeesByManager = viewEmployeesByManager
 
-async function viewEmployeesByDepartment() {
-    const deptObjArray = await employees_db.getDepartments();
-    const deptNamesArray = deptObjArray.map(deptObj => ({
-        "name": `${deptObj.department_name}`, "value": deptObj.id
-    }));
-    const { department }  = await inquirer.prompt([{
-        name : 'department',
-        message: "Which department which you like to view employees for?",
-        type: "list",
-        choices: deptNamesArray
-    }])
-    const output = await employees_db.getEmployeesByDepartment(department)
-    console.table(output)
-}
-exports.viewEmployeesByDepartment = viewEmployeesByDepartment;
