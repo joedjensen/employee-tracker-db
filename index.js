@@ -1,7 +1,7 @@
 const inquirer = require('inquirer')
 const Question = require('./lib/Question')
 const cTable = require('console.table')
-const { viewDepartments, addDepartment, viewRoles, addRole, viewEmployees, addEmployee, updateRole } = require("./helpers/actionWrappers")
+const { viewDepartments, addDepartment, viewRoles, addRole, viewEmployees, addEmployee, updateRole, updateManager } = require("./helpers/actionWrappers")
 
 
 mainMenuQuestionArray = [
@@ -12,6 +12,7 @@ mainMenuQuestionArray = [
     new Question("View All Employees", viewEmployees),
     new Question("Add Employee", addEmployee),
     new Question("Update Employee Role", updateRole),
+    new Question("Update Employee Manager", updateManager),
     new Question("Quit")
 ]
 
@@ -42,15 +43,14 @@ console.log(`
 
 
 async function mainMenu() {
-    const { whatToDo } = await inquirer.prompt([{
-        name: "whatToDo",
+    const { index } = await inquirer.prompt([{
+        name: "index",
         message: "What would you like to do?",
         type: "list",
-        choices: mainMenuQuestionArray.map(question => question.text)
+        choices: mainMenuQuestionArray.map((question, index) => ({"name":question.text, "value": index}))
     }])
-
-    const selectedQuestion = mainMenuQuestionArray.filter(question => question.text === whatToDo)[0]
-    if (whatToDo === "Quit") {
+    const selectedQuestion = mainMenuQuestionArray[index]
+    if (selectedQuestion.text === "Quit") {
         process.exit();
     } else if (!selectedQuestion.action) {
         console.log("no action specified")

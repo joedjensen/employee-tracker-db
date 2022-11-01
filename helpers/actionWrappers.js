@@ -34,7 +34,7 @@ exports.addDepartment = addDepartment;
 
 async function addRole() {
     const deptObjsArray = await employees_db.getDepartments();
-    const deptNamesArray = deptObjsArray.map(deptObj => deptObj.department_name);
+    const deptNamesArray = deptObjsArray.map(deptObj => ({"name" :deptObj.department_name, "value": deptObj.id}));
     const { title, salary, department } = await inquirer.prompt([
         {
             name: "title",
@@ -51,8 +51,7 @@ async function addRole() {
             choices: deptNamesArray
         }
     ]);
-    const deptId = deptObjsArray.filter(dept => dept.department_name === department)[0].id;
-    const output = await employees_db.addRole(title, salary, deptId);
+    const output = await employees_db.addRole(title, salary, department);
 }
 exports.addRole = addRole;
 
@@ -113,3 +112,26 @@ async function updateRole() {
     const output = await employees_db.updateEmployeeRole(employee, role);
 }
 exports.updateRole = updateRole;
+
+async function updateManager() {
+    const employeeObjsArray = await employees_db.getEmployees();
+    const employeeNamesArray = employeeObjsArray.map(employeeObj => ({
+        "name": `${employeeObj.first_name} ${employeeObj.last_name}`, "value": employeeObj.id
+    }));
+    const { employee, manager } = await inquirer.prompt([
+        {
+            name: "employee",
+            message: "What employee do you want to update?",
+            type: 'list',
+            choices: employeeNamesArray
+        },
+        {
+            name: "manager",
+            message: "Who is the employees new manager?",
+            type: "list",
+            choices: employeeNamesArray
+        }
+    ]);
+    const output = await employees_db.updateEmployeeManager(employee, manager);
+}
+exports.updateManager = updateManager;
