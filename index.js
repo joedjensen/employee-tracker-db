@@ -52,13 +52,45 @@ async function addRole() {
     const deptId = deptObjsArray.filter(dept => dept.department_name === department)[0].id
     const output = await employees_db.addRole(title, salary, deptId)
 }
+
+async function addEmployee() {
+    const rolesObjArray = await employees_db.getRoles()
+    const rolesNameArray = rolesObjArray.map(rolesObj => ({"name":rolesObj.title, "value": rolesObj.id}))
+    const managerObjsArray = await employees_db.getEmployees()
+    const managersNamesArray = managerObjsArray.map(managerObj => ({
+        "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
+    }))
+    const { first_name, last_name, role, manager } = await inquirer.prompt([
+        {
+            name: "first_name",
+            message: "What is the employees first name?"
+        },
+        {
+            name: "last_name",
+            message: "What is the employees last name?"
+        },
+        {
+            name: "role",
+            message: "What is the employees role?",
+            type: "list",
+            choices: rolesNameArray
+        },
+        {
+            name: "manager",
+            message: "Who is this employees manager?",
+            type: "list",
+            choices: managersNamesArray
+        }
+    ])
+    const output = await employees_db.addEmployee(first_name, last_name, role, manager)
+}
 mainMenuQuestionArray = [
     new Question("View All Departments", viewDepartments),
     new Question("Add a Department", addDepartment),
     new Question("View All Roles", viewRoles),
     new Question("Add a Role", addRole),
     new Question("View All Employees", viewEmployees),
-    new Question("Add Employee"),
+    new Question("Add Employee", addEmployee),
     new Question("Update Employee Role"),
     new Question("Quit")
 ]
