@@ -8,7 +8,7 @@ async function getRoleSubMenu() {
             name: "action",
             message: "Select action:",
             type: "list",
-            choices: [{name:"View all Roles", value: viewRoles}, {name:"Add a Role", value: addRole}]
+            choices: [{name:"View all Roles", value: viewRoles}, {name:"Add a Role", value: addRole}, {name:"Delete a Role", value: deleteRole}]
         }
     ]);
     var res = await action();
@@ -21,7 +21,6 @@ async function viewRoles() {
 }
 exports.viewRoles = viewRoles;
 
-
 async function addRole() {
     const deptObjsArray = await employees_db.getDepartments();
     const deptNamesArray = deptObjsArray.map(deptObj => ({"name" :deptObj.department_name, "value": deptObj.id}));
@@ -32,7 +31,8 @@ async function addRole() {
         },
         {
             name: "salary",
-            message: "What is the salary for the new role?"
+            message: "What is the salary for the new role?",
+            type:'number'
         },
         {
             name: "department",
@@ -44,3 +44,17 @@ async function addRole() {
     const output = await employees_db.addRole(title, salary, department);
 }
 exports.addRole = addRole;
+
+async function deleteRole() {
+        const roleObjsArray = await employees_db.getRoles();
+        const rolesNameArray = roleObjsArray.map(roleObj => ({"name" :roleObj.title, "value": roleObj.id}));
+        const { role } = await inquirer.prompt([
+            {
+                name: "role",
+                message: "Which role would you like to delete?",
+                type: "list",
+                choices: rolesNameArray
+            }
+        ]);
+        const output = await employees_db.deleteEntity('roles', role);
+}

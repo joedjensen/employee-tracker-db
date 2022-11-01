@@ -8,7 +8,24 @@ async function getEmployeeSubMenu() {
             name: "action",
             message: "Select action:",
             type: "list",
-            choices: [{name:"View Employees", value: viewEmployees}, {name:"Add an Employee", value: addEmployee}, {name:"Update an Employee", value: updateEmployee}]
+            choices: [
+                {
+                    name: "View Employees",
+                    value: viewEmployees
+                },
+                {
+                    name: "Add an Employee",
+                    value: addEmployee
+                },
+                {
+                    name: "Update an Employee",
+                    value: updateEmployee
+                },
+                {
+                    name: "Delete an Employee",
+                    value: deleteEmployee
+                }
+            ]
         }
     ]);
     var res = await action();
@@ -21,7 +38,19 @@ async function viewEmployees() {
             name: "by",
             message: "Filter Employees by?",
             type: "list",
-            choices: [{name:"All", value: viewAllEmployees}, {name:"Manager", value: viewEmployeesByManager}, {name:"Department", value: viewEmployeesByDepartment}]
+            choices: [
+                {
+                    name: "All",
+                    value: viewAllEmployees
+                },
+                {
+                    name: "Manager",
+                    value: viewEmployeesByManager
+                },
+                {
+                    name: "Department",
+                    value: viewEmployeesByDepartment
+                }]
         }
     ]);
     var res = await by();
@@ -39,8 +68,8 @@ async function viewEmployeesByManager() {
     const managersNamesArray = managersObjArray.map(managerObj => ({
         "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
     }));
-    const { manager }  = await inquirer.prompt([{
-        name : 'manager',
+    const { manager } = await inquirer.prompt([{
+        name: 'manager',
         message: "Which manager which you like to view employees for?",
         type: "list",
         choices: managersNamesArray
@@ -54,8 +83,8 @@ async function viewEmployeesByDepartment() {
     const deptNamesArray = deptObjArray.map(deptObj => ({
         "name": `${deptObj.department_name}`, "value": deptObj.id
     }));
-    const { department }  = await inquirer.prompt([{
-        name : 'department',
+    const { department } = await inquirer.prompt([{
+        name: 'department',
         message: "Which department which you like to view employees for?",
         type: "list",
         choices: deptNamesArray
@@ -104,7 +133,7 @@ async function updateEmployee() {
             name: "action",
             message: "Update employees:",
             type: "list",
-            choices: [{name:"Role", value: updateRole}, {name:"Manager", value: updateManager}]
+            choices: [{ name: "Role", value: updateRole }, { name: "Manager", value: updateManager }]
         }
     ])
     const rows = await action();
@@ -159,4 +188,17 @@ async function updateManager() {
     const output = await employees_db.updateEmployeeManager(employee, manager);
 }
 
+async function deleteEmployee() {
+    const employeeObjsArray = await employees_db.getEmployees();
+    const employeeNamesArray = employeeObjsArray.map(employeeObj => ({ "name": `${employeeObj.first_name} ${employeeObj.last_name}`, "value": employeeObj.id }));
+    const { employee } = await inquirer.prompt([
+        {
+            name: "employee",
+            message: "Which employee would you like to delete?",
+            type: "list",
+            choices: employeeNamesArray
+        }
+    ]);
+    const output = await employees_db.deleteEntity('employees', employee);
+}
 

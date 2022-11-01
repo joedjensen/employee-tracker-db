@@ -46,6 +46,10 @@ async function mainMenu() {
             {
                 name:"Employees",
                 value: getEmployeeSubMenu
+            },
+            {
+                name:"Quit",
+                value: process.exit
             }
         ]
     }])
