@@ -5,14 +5,16 @@ const cTable = require('console.table')
 
 
 const employees_db = new EmployeeDatabase()
+
 async function viewDepartments() {
     var res = await employees_db.getDepartments();
     console.table(res)
     mainMenu()
 }
 
-function viewRoles() {
-    employees_db.getRoles()
+async function viewRoles() {
+    var res = await employees_db.getRoles()
+    console.table(res)
     mainMenu()
 }
 function addDepartment() {
