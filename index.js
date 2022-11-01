@@ -1,7 +1,7 @@
 const inquirer = require('inquirer')
 const Question = require('./lib/Question')
 const cTable = require('console.table')
-const { viewDepartments, addDepartment, viewRoles, addRole, viewEmployees, addEmployee, updateRole, updateManager } = require("./helpers/actionWrappers")
+const { viewDepartments, addDepartment, viewRoles, addRole, viewEmployees, addEmployee, updateRole, updateManager, viewEmployeesByManager, viewEmployeesByDepartment } = require("./helpers/actionWrappers")
 
 
 mainMenuQuestionArray = [
@@ -13,6 +13,8 @@ mainMenuQuestionArray = [
     new Question("Add Employee", addEmployee),
     new Question("Update Employee Role", updateRole),
     new Question("Update Employee Manager", updateManager),
+    new Question("View Employees by Manager", viewEmployeesByManager),
+    new Question("View Employees by Department", viewEmployeesByDepartment),
     new Question("Quit")
 ]
 

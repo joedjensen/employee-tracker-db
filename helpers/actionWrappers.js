@@ -135,3 +135,35 @@ async function updateManager() {
     const output = await employees_db.updateEmployeeManager(employee, manager);
 }
 exports.updateManager = updateManager;
+
+async function viewEmployeesByManager() {
+    const managersObjArray = await employees_db.getUniqueManagers();
+    const managersNamesArray = managersObjArray.map(managerObj => ({
+        "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
+    }));
+    const { manager }  = await inquirer.prompt([{
+        name : 'manager',
+        message: "Which manager which you like to view employees for?",
+        type: "list",
+        choices: managersNamesArray
+    }])
+    const output = await employees_db.getEmployeesByManager(manager)
+    console.table(output)
+}
+exports.viewEmployeesByManager = viewEmployeesByManager
+
+async function viewEmployeesByDepartment() {
+    const deptObjArray = await employees_db.getDepartments();
+    const deptNamesArray = deptObjArray.map(deptObj => ({
+        "name": `${deptObj.department_name}`, "value": deptObj.id
+    }));
+    const { department }  = await inquirer.prompt([{
+        name : 'department',
+        message: "Which department which you like to view employees for?",
+        type: "list",
+        choices: deptNamesArray
+    }])
+    const output = await employees_db.getEmployeesByDepartment(department)
+    console.table(output)
+}
+exports.viewEmployeesByDepartment = viewEmployeesByDepartment;
