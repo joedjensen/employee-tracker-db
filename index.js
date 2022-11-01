@@ -9,19 +9,16 @@ const employees_db = new EmployeeDatabase()
 async function viewDepartments() {
     var res = await employees_db.getDepartments();
     console.table(res)
-    mainMenu()
 }
 
 async function viewRoles() {
     var res = await employees_db.getRoles()
     console.table(res)
-    mainMenu()
 }
 
 async function viewEmployees() {
     var res = await employees_db.getEmployees()
     console.table(res)
-    mainMenu()
 }
 async function addDepartment() {
     const { department } = await inquirer.prompt([
@@ -31,12 +28,12 @@ async function addDepartment() {
             type: "input",
         }])
     var res = await employees_db.addDepartment(department)
-    mainMenu()
 }
 
 async function addRole() {
-    const res = employees_db.selectRoles()
-    inquirer.prompt([
+    const deptObjsArray = await employees_db.getDepartments()
+    const deptNamesArray = deptObjsArray.map(deptObj => deptObj.department_name)
+    const { title, salary, department } = await inquirer.prompt([
         {
             name: "title",
             message: "What is the title of the new role?"
@@ -46,9 +43,14 @@ async function addRole() {
             message: "What is the salary for the new role?"
         },
         {
-            name: "department"
+            name: "department",
+            message: "What department is this role in?",
+            type: "list",
+            choices: deptNamesArray
         }
     ])
+    const deptId = deptObjsArray.filter(dept => dept.department_name === department)[0].id
+    const output = await employees_db.addRole(title, salary, deptId)
 }
 mainMenuQuestionArray = [
     new Question("View All Departments", viewDepartments),
@@ -103,5 +105,6 @@ async function mainMenu() {
         process.exit()
     }
     const outcome = await selectedQuestion.action();
+    mainMenu()
 }
 mainMenu()
