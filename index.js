@@ -17,20 +17,25 @@ async function viewRoles() {
     console.table(res)
     mainMenu()
 }
-function addDepartment() {
-    inquirer.prompt([
+
+async function viewEmployees() {
+    var res = await employees_db.getEmployees()
+    console.table(res)
+    mainMenu()
+}
+async function addDepartment() {
+    const { department } = await inquirer.prompt([
         {
             name: "department",
             message: "What is the department name?",
             type: "input",
-        }]).then(({ department }) => {
-            employees_db.addDepartment(department)
-            mainMenu()
-        })
+        }])
+    var res = await employees_db.addDepartment(department)
+    mainMenu()
 }
 
-function addRole() {
-    res = employees_db.selectRoles()
+async function addRole() {
+    const res = employees_db.selectRoles()
     inquirer.prompt([
         {
             name: "title",
@@ -50,7 +55,7 @@ mainMenuQuestionArray = [
     new Question("Add a Department", addDepartment),
     new Question("View All Roles", viewRoles),
     new Question("Add a Role", addRole),
-    new Question("View All Employees", "viewEmployees"),
+    new Question("View All Employees", viewEmployees),
     new Question("Add Employee"),
     new Question("Update Employee Role"),
     new Question("Quit")
@@ -82,21 +87,21 @@ console.log(`
                                             `)
 
 
-function mainMenu() {
-    inquirer.prompt([{
+async function mainMenu() {
+    const { whatToDo } = await inquirer.prompt([{
         name: "whatToDo",
         message: "What would you like to do?",
         type: "list",
         choices: mainMenuQuestionArray.map(question => question.text)
-    }]).then((answer) => {
-        const selectedQuestion = mainMenuQuestionArray.filter(question => question.text === answer.whatToDo)[0]
-        if (answer.whatToDo === "Quit") {
-            process.exit();
-        } else if (!selectedQuestion.action) {
-            console.log("no action specified")
-            process.exit()
-        }
-        selectedQuestion.action()
-    })
+    }])
+
+    const selectedQuestion = mainMenuQuestionArray.filter(question => question.text === whatToDo)[0]
+    if (whatToDo === "Quit") {
+        process.exit();
+    } else if (!selectedQuestion.action) {
+        console.log("no action specified")
+        process.exit()
+    }
+    const outcome = await selectedQuestion.action();
 }
 mainMenu()
