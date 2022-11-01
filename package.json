@@ -1,0 +1,24 @@
+{
+  "name": "employee-tracker-db",
+  "version": "1.0.0",
+  "description": "This repository contains a command line application which enables users to read from and write to a database containing information about employees.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joedjensen/employee-tracker-db.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joedjensen/employee-tracker-db/issues"
+  },
+  "homepage": "https://github.com/joedjensen/employee-tracker-db#readme",
+  "dependencies": {
+    "inquirer": "^8.2.4",
+    "mysql2": "^2.3.3"
+  }
+}
