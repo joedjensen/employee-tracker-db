@@ -9,6 +9,7 @@ This repository utilizes
 * mysql
 * mysql2
 
+![Alt text](assets/12-sql-challenge-demo-01.png)
 [Video](https://drive.google.com/file/d/18mSormtuH-03CSAH497sysamsupmQeoH/view)
 
 ## Installation 
