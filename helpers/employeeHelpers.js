@@ -101,14 +101,17 @@ async function addEmployee() {
     const managersNamesArray = managerObjsArray.map(managerObj => ({
         "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
     }));
+    managersNamesArray.unshift({ "name": "None", "value": null })
     const { first_name, last_name, role, manager } = await inquirer.prompt([
         {
             name: "first_name",
-            message: "What is the employees first name?"
+            message: "What is the employees first name?",
+            validate: validate
         },
         {
             name: "last_name",
-            message: "What is the employees last name?"
+            message: "What is the employees last name?",
+            validate: validate
         },
         {
             name: "role",
@@ -147,22 +150,25 @@ async function updateRole() {
     const employeeNamesArray = employeeObjsArray.map(employeeObj => ({
         "name": `${employeeObj.first_name} ${employeeObj.last_name}`, "value": employeeObj.id
     }));
-    const rolesObjArray = await employees_db.getRoles();
-    const rolesNameArray = rolesObjArray.map(rolesObj => ({ "name": rolesObj.title, "value": rolesObj.id }));
-    const { employee, role } = await inquirer.prompt([
+    const { employee } = await inquirer.prompt([
         {
             name: "employee",
             message: "What employee do you want to update?",
             type: 'list',
             choices: employeeNamesArray
-        },
+        }])
+    const { title } = employeeObjsArray.filter(obj => obj.id = employee)[0]
+    console.log(title)
+    const rolesObjArray = await employees_db.getRoles();
+    const rolesNameArray = rolesObjArray.filter(obj => obj.title != title).map(rolesObj => ({ "name": rolesObj.title, "value": rolesObj.id }));
+    const { role } = await inquirer.prompt([
         {
             name: "role",
             message: "What is the employees new role?",
             type: "list",
             choices: rolesNameArray
         }
-    ]);
+    ])
     const output = await employees_db.updateEmployeeRole(employee, role);
 }
 
@@ -171,20 +177,23 @@ async function updateManager() {
     const employeeNamesArray = employeeObjsArray.map(employeeObj => ({
         "name": `${employeeObj.first_name} ${employeeObj.last_name}`, "value": employeeObj.id
     }));
-    const { employee, manager } = await inquirer.prompt([
+    const { employee } = await inquirer.prompt([
         {
             name: "employee",
             message: "What employee do you want to update?",
             type: 'list',
             choices: employeeNamesArray
         },
+    ]);
+    employeeNamesArray.unshift({ "name": "None", "value": null })
+    const { manager } = await inquirer.prompt([
         {
             name: "manager",
             message: "Who is the employees new manager?",
             type: "list",
-            choices: employeeNamesArray
+            choices: employeeNamesArray.filter(employeeObj => employeeObj.value != employee)
         }
-    ]);
+    ])
     const output = await employees_db.updateEmployeeManager(employee, manager);
 }
 
@@ -202,3 +211,10 @@ async function deleteEmployee() {
     const output = await employees_db.deleteEntity('employees', employee);
 }
 
+function validate(answer) {
+    if (answer?.trim()) {
+        return true
+    } else {
+        return 'Please enter something';
+    }
+}

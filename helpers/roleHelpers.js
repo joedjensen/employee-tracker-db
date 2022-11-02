@@ -8,7 +8,7 @@ async function getRoleSubMenu() {
             name: "action",
             message: "Select action:",
             type: "list",
-            choices: [{name:"View all Roles", value: viewRoles}, {name:"Add a Role", value: addRole}, {name:"Delete a Role", value: deleteRole}]
+            choices: [{ name: "View all Roles", value: viewRoles }, { name: "Add a Role", value: addRole }, { name: "Delete a Role", value: deleteRole }]
         }
     ]);
     var res = await action();
@@ -23,16 +23,28 @@ exports.viewRoles = viewRoles;
 
 async function addRole() {
     const deptObjsArray = await employees_db.getDepartments();
-    const deptNamesArray = deptObjsArray.map(deptObj => ({"name" :deptObj.department_name, "value": deptObj.id}));
+    const deptNamesArray = deptObjsArray.map(deptObj => ({ "name": deptObj.department_name, "value": deptObj.id }));
     const { title, salary, department } = await inquirer.prompt([
         {
             name: "title",
-            message: "What is the title of the new role?"
+            message: "What is the title of the new role?",
+            validate: validate
         },
         {
             name: "salary",
             message: "What is the salary for the new role?",
-            type:'number'
+            type: 'input',
+            validate(answer) {
+                salaryRegex = /^[$]?[\d,]+$/
+                if (!salaryRegex.test(answer)) {
+                    return "Not a valid salary!"
+                }
+                return true
+            },
+            filter(answer) {
+                const cleaned = answer.replaceAll("$", "").replaceAll(",", "")
+                return parseInt(cleaned)
+            }
         },
         {
             name: "department",
@@ -46,15 +58,23 @@ async function addRole() {
 exports.addRole = addRole;
 
 async function deleteRole() {
-        const roleObjsArray = await employees_db.getRoles();
-        const rolesNameArray = roleObjsArray.map(roleObj => ({"name" :roleObj.title, "value": roleObj.id}));
-        const { role } = await inquirer.prompt([
-            {
-                name: "role",
-                message: "Which role would you like to delete?",
-                type: "list",
-                choices: rolesNameArray
-            }
-        ]);
-        const output = await employees_db.deleteEntity('roles', role);
+    const roleObjsArray = await employees_db.getRoles();
+    const rolesNameArray = roleObjsArray.map(roleObj => ({ "name": roleObj.title, "value": roleObj.id }));
+    const { role } = await inquirer.prompt([
+        {
+            name: "role",
+            message: "Which role would you like to delete?",
+            type: "list",
+            choices: rolesNameArray
+        }
+    ]);
+    const output = await employees_db.deleteEntity('roles', role);
+}
+
+function validate(answer) {
+    if (answer?.trim()) {
+        return true
+    } else {
+        return 'Please enter something';
+    }
 }

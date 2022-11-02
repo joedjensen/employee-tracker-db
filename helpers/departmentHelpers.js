@@ -27,6 +27,7 @@ async function addDepartment() {
             name: "department",
             message: "What is the department name?",
             type: "input",
+            validate: validate
         }
     ]);
     var res = await employees_db.addDepartment(department);
@@ -61,4 +62,12 @@ async function viewDepartmentBudget() {
     const output = await employees_db.summarizeDeptBudget(department);
     console.table(output)
 
+}
+
+function validate(answer) {
+    if (answer?.trim()) {
+        return true
+    } else {
+        return 'Please enter something';
+    }
 }
