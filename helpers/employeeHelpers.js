@@ -2,12 +2,15 @@ const inquirer = require('inquirer');
 const employees_db = require('../lib/EmployeeDatabase')
 const cTable = require('console.table')
 
+// async submenu
+// bottoms out in queries
 async function getEmployeeSubMenu() {
     const { action } = await inquirer.prompt([
         {
             name: "action",
             message: "Select action:",
             type: "list",
+            // function refs as values
             choices: [
                 {
                     name: "View Employees",
@@ -28,16 +31,18 @@ async function getEmployeeSubMenu() {
             ]
         }
     ]);
-    var res = await action();
+    // execute selection
+    const res = await action();
 }
 exports.getEmployeeSubMenu = getEmployeeSubMenu
 
 async function viewEmployees() {
-    const { by } = await inquirer.prompt([
+    const { action } = await inquirer.prompt([
         {
-            name: "by",
+            name: "action",
             message: "Filter Employees by?",
             type: "list",
+            // function refs as values
             choices: [
                 {
                     name: "All",
@@ -53,7 +58,8 @@ async function viewEmployees() {
                 }]
         }
     ]);
-    var res = await by();
+    // wait for query result and table
+    const res = await action();
     console.table(res);
 }
 exports.viewEmployees = viewEmployees;
@@ -64,7 +70,9 @@ async function viewAllEmployees() {
 }
 
 async function viewEmployeesByManager() {
+    // get possible managers
     const managersObjArray = await employees_db.getUniqueManagers();
+    // map to array for use in choices. value is manager id
     const managersNamesArray = managersObjArray.map(managerObj => ({
         "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
     }));
@@ -101,6 +109,7 @@ async function addEmployee() {
     const managersNamesArray = managerObjsArray.map(managerObj => ({
         "name": `${managerObj.first_name} ${managerObj.last_name}`, "value": managerObj.id
     }));
+    // add option for no manager
     managersNamesArray.unshift({ "name": "None", "value": null })
     const { first_name, last_name, role, manager } = await inquirer.prompt([
         {
@@ -157,9 +166,10 @@ async function updateRole() {
             type: 'list',
             choices: employeeNamesArray
         }])
+    // get current title
     const { title } = employeeObjsArray.filter(obj => obj.id = employee)[0]
-    console.log(title)
     const rolesObjArray = await employees_db.getRoles();
+    // remove current title from options for update
     const rolesNameArray = rolesObjArray.filter(obj => obj.title != title).map(rolesObj => ({ "name": rolesObj.title, "value": rolesObj.id }));
     const { role } = await inquirer.prompt([
         {
@@ -191,6 +201,7 @@ async function updateManager() {
             name: "manager",
             message: "Who is the employees new manager?",
             type: "list",
+            // remove self from list of possible managers
             choices: employeeNamesArray.filter(employeeObj => employeeObj.value != employee)
         }
     ])
